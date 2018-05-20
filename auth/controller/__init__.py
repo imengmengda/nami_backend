@@ -13,7 +13,7 @@ def register():
     if user is not None or username is None:
         return jsonify({'error': 'user exist'})
     user = User(username, password)
-    token = user.generate_token(2)
+    token = user.generate_token()
     user.hash_password()
     db.session.add(user)
     db.session.commit()
@@ -33,8 +33,8 @@ def login():
         password_encrypter = PasswordEcrypter()
         if user.password != password_encrypter.create_md5(password, user.salt):
             return jsonify({'error': 'password error'})
-    user.generate_token(600)
-    return jsonify({'token': user.token.decode('ascii'), 'duration': 600})
+    user.generate_token()
+    return jsonify({'token': user.token.decode('ascii'), 'duration': '1 month'})
 
 @nami_auth.route('/auth_test')
 @auth.login_required

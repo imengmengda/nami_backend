@@ -4,18 +4,21 @@ from itsdangerous import (TimedJSONWebSignatureSerializer
 from utils.password_encrypter import PasswordEcrypter
 
 class User(db.Model):
-    __tablename__ = 'users'
+    __tablename__ = 'user'
     id = db.Column(db.INTEGER, primary_key=True, autoincrement=True)
     username = db.Column(db.String(64), index=True, unique=True)
     password = db.Column(db.String(64))
     salt = db.Column(db.String(32))
     token = db.Column(db.String(64))
+    repo = db.relationship('Repository', backref='user', lazy='dynamic')
+    commit = db.relationship('Commit', backref='user', lazy='dynamic')
 
     def __init__(self, username, password):
         self.username = username
         self.password = password
 
-    def generate_token(self, expire_time):
+    def generate_token(self, expire_time=3600*360):
+        #defaule token expire time: 1 month
         s = Serializer(app.config['SECRET_KEY'], expires_in= expire_time)
         token = s.dumps({'id': self.id})
         self.token = token
